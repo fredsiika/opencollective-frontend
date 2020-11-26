@@ -22,6 +22,8 @@ import { H3, P } from '../../Text';
 
 import { getSettingsQuery } from './EditCollectivePage';
 
+const MAX_LENGTH = 50000; // max in database is ~15,500 without html
+
 const updateFilterCategoriesMutation = gqlV2/* GraphQL */ `
   mutation UpdateFilterCategories($account: AccountReferenceInput!, $key: AccountSettingsKey!, $value: JSON!) {
     editAccountSetting(account: $account, key: $key, value: $value) {
@@ -160,6 +162,8 @@ const Policies = ({ collective }) => {
             {inputProps => (
               <RichTextEditor
                 withBorders
+                showCount
+                maxLength={MAX_LENGTH}
                 version="simplified"
                 editorMinHeight="20rem"
                 id={inputProps.id}
@@ -188,6 +192,8 @@ const Policies = ({ collective }) => {
             {inputProps => (
               <RichTextEditor
                 withBorders
+                showCount
+                maxLength={MAX_LENGTH}
                 version="simplified"
                 editorMinHeight="20rem"
                 id={inputProps.id}
