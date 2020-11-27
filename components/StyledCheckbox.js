@@ -161,6 +161,7 @@ class StyledCheckbox extends React.Component {
         size={size}
         width={width}
         alignItems={alignItems}
+        name={name}
         {...props}
       >
         <input id={inputId} name={name} type="checkbox" checked={realChecked} disabled={disabled} readOnly />

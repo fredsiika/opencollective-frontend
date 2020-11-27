@@ -195,7 +195,7 @@ const createCollectiveMutation = gqlV2/* GraphQL */ `
   }
 `;
 
-const addCreateCollectiveMutation = graphql(createCollectiveMutation, {
+export const addCreateCollectiveMutation = graphql(createCollectiveMutation, {
   name: 'createCollective',
   options: { context: API_V2_CONTEXT },
 });

@@ -22,7 +22,7 @@ import StyledInputGroup from '../StyledInputGroup';
 import StyledLink from '../StyledLink';
 import { H1, P } from '../Text';
 
-const BackButton = styled(StyledButton)`
+export const BackButton = styled(StyledButton)`
   color: ${themeGet('colors.black.600')};
   font-size: 14px;
 `;
@@ -41,7 +41,7 @@ const placeholders = {
   slug: 'agora',
 };
 
-const messages = defineMessages({
+export const messages = defineMessages({
   nameLabel: { id: 'createCollective.form.nameLabel', defaultMessage: "What's the name of your collective?" },
   slugLabel: { id: 'createCollective.form.slugLabel', defaultMessage: 'What URL would you like?' },
   suggestedLabel: { id: 'createCollective.form.suggestedLabel', defaultMessage: 'Suggested' },

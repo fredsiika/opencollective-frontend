@@ -962,6 +962,8 @@ type Collective implements Account & AccountWithHost & AccountWithContributions 
 input CollectiveCreateInput {
   name: String!
   slug: String!
+  website: String
+  type: String
   description: String!
   tags: [String]
   githubHandle: String
@@ -4749,7 +4751,7 @@ type Mutation {
   ): Order!
   createCollective(
     """
-    Information about the collective to create (name, slug, description, tags, ...)
+    Information about the collective to create (name, slug, description, tags, website, ...)
     """
     collective: CollectiveCreateInput!
 
