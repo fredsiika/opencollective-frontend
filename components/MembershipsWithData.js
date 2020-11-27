@@ -4,11 +4,20 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { Button } from 'react-bootstrap';
 import { FormattedMessage } from 'react-intl';
+import styled from 'styled-components';
 
+import Container from './Container';
 import Error from './Error';
 import Membership from './Membership';
 
 const MEMBERSHIPS_PER_PAGE = 10;
+
+const MembersContainer = styled.div`
+  .loadMoreBtn {
+    margin: 1rem;
+    text-align: center;
+  }
+`;
 
 class MembershipsWithData extends React.Component {
   static propTypes = {
@@ -82,29 +91,20 @@ class MembershipsWithData extends React.Component {
 
     const limit = this.props.limit || MEMBERSHIPS_PER_PAGE * 2;
     return (
-      <div className="MembersContainer" ref={node => (this.node = node)}>
-        <style jsx>
-          {`
-            :global(.loadMoreBtn) {
-              margin: 1rem;
-              text-align: center;
-            }
-            .Collectives {
-              display: flex;
-              flex-wrap: wrap;
-              flex-direction: row;
-              justify-content: center;
-              overflow: hidden;
-              margin: 1rem 0;
-            }
-          `}
-        </style>
-
-        <div className="Collectives cardsList">
+      <MembersContainer ref={node => (this.node = node)}>
+        <Container
+          className="cardsList"
+          display="flex"
+          flexWrap="wrap"
+          flexDirection="row"
+          justifyContent="center"
+          overflow="hidden"
+          margin="1rem 0"
+        >
           {collectiveIds.map(id => (
             <Membership key={id} memberships={groupedMemberships[id]} LoggedInUser={LoggedInUser} />
           ))}
-        </div>
+        </Container>
         {memberships.length % 10 === 0 && memberships.length >= limit && (
           <div className="loadMoreBtn">
             <Button bsStyle="default" onClick={this.fetchMore}>
@@ -113,7 +113,7 @@ class MembershipsWithData extends React.Component {
             </Button>
           </div>
         )}
-      </div>
+      </MembersContainer>
     );
   }
 }
