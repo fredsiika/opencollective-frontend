@@ -151,7 +151,7 @@ class TierPage extends Component {
     return (
       <div>
         <P fontSize="16px" color="black.700" fontWeight="bold" mt={4} mb={3}>
-          <FormattedMessage id="TierPage.ShareGoal" defaultMessage="Share this goal" />
+          <FormattedMessage id="TierPage.ShareGoal" defaultMessage="Share" />
         </P>
         <ShareButtons pageUrl={pageUrl} collective={this.props.collective} />
       </div>
@@ -203,9 +203,6 @@ class TierPage extends Component {
                 py={[4, 5]}
                 boxShadow="-3px 11px 13px rgba(75, 75, 75, 0.1)"
               >
-                <P fontSize="16px" color="#C0C5CC" mb={3}>
-                  <FormattedMessage id="TierPage.FinancialGoal" defaultMessage="Financial Goal" />
-                </P>
                 <H1 fontSize="40px" textAlign="left" color="black.900" wordBreak="break-word" mb={3} data-cy="TierName">
                   <InlineEditField
                     mutation={editTierMutation}
