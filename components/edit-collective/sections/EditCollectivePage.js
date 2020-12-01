@@ -10,7 +10,11 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import styled, { css } from 'styled-components';
 
 import hasFeature, { FEATURES } from '../../../lib/allowed-features';
-import { filterSectionsByData, getDefaultSectionsForCollective } from '../../../lib/collective-sections';
+import {
+  convertSectionsToNewFormat,
+  filterSectionsByData,
+  getDefaultSectionsForCollective,
+} from '../../../lib/collective-sections';
 import { CollectiveType } from '../../../lib/constants/collectives';
 import DRAG_AND_DROP_TYPES from '../../../lib/constants/drag-and-drop';
 import { formatErrorMessage, getErrorFromGraphqlException } from '../../../lib/errors';
@@ -232,12 +236,39 @@ const getNewSections = memoizeOne((sections, moveIndex, toIndex) => {
   return newSections;
 });
 
+const NavbarItem = ({ item }) => {
+  if (item.type === 'CATEGORY') {
+    return (
+      <div>
+        <div>{item.name}</div>
+        {item.sections?.map(section => (
+          <Container key={section} borderLeft="5px solid black">
+            <NavbarItem item={section} />
+          </Container>
+        ))}
+      </div>
+    );
+  } else if (item.type === 'SECTION') {
+    return <div>{item.name}</div>;
+  } else {
+    return null;
+  }
+};
+
+NavbarItem.propTypes = {
+  item: PropTypes.shape({
+    type: PropTypes.oneOf(['CATEGORY', 'SECTION']),
+    name: PropTypes.string,
+  }),
+};
+
 const EditCollectivePage = ({ collective }) => {
   const intl = useIntl();
   const [isDirty, setDirty] = React.useState(false);
   const [sections, setSections] = React.useState(null);
   const [tmpSections, setTmpSections] = React.useState(null);
   const [sectionsWithData, setSectionsWithData] = React.useState([]);
+  const useNewSections = true; // TODO
 
   const { loading, data } = useQuery(getSettingsQuery, {
     variables: { slug: collective.slug },
@@ -252,7 +283,13 @@ const EditCollectivePage = ({ collective }) => {
   React.useEffect(() => {
     if (data?.account) {
       const sectionsFromCollective = loadSectionsForCollective(data.account);
-      setSections(sectionsFromCollective);
+      if (useNewSections) {
+        const convertedSections = convertSectionsToNewFormat(sectionsFromCollective);
+        setSections(convertedSections);
+        console.log(convertedSections);
+      } else {
+        setSections(sectionsFromCollective);
+      }
       setSectionsWithData(
         filterSectionsByData(
           sectionsFromCollective.map(({ section }) => section),
@@ -284,39 +321,43 @@ const EditCollectivePage = ({ collective }) => {
           ) : (
             <div>
               <StyledCard mb={4}>
-                {displayedSections.map(({ section, isEnabled, restrictedTo }, index) => (
-                  <React.Fragment key={section}>
-                    <CollectiveSectionEntry
-                      intl={intl}
-                      section={section}
-                      index={index}
-                      isEnabled={isEnabled}
-                      collectiveType={collective.type}
-                      restrictedTo={restrictedTo}
-                      hasData={sectionsWithData.includes(section)}
-                      onMove={(dragIndex, hoverIndex) => {
-                        const newSections = getNewSections(sections, dragIndex, hoverIndex);
-                        if (!isEqual(tmpSections, newSections)) {
-                          setTmpSections(newSections);
-                        }
-                      }}
-                      onDrop={(dragIndex, hoverIndex) => {
-                        setTmpSections(null);
-                        setSections(getNewSections(sections, dragIndex, hoverIndex));
-                        setDirty(true);
-                      }}
-                      onSectionToggle={(selectedSection, isEnabled, restrictedTo) => {
-                        const sectionIdx = sections.findIndex(({ section }) => section === selectedSection);
-                        const newSections = cloneDeep(sections);
-                        set(newSections, `${sectionIdx}.isEnabled`, isEnabled);
-                        set(newSections, `${sectionIdx}.restrictedTo`, restrictedTo);
-                        setSections(newSections);
-                        setDirty(true);
-                      }}
-                    />
-                    {index !== displayedSections.length - 1 && <StyledHr borderColor="#DCDEE0" />}
-                  </React.Fragment>
-                ))}
+                {useNewSections
+                  ? displayedSections.map(navbarItem => (
+                      <NavbarItem key={`${navbarItem.type}-${navbarItem.name}`} item={navbarItem} />
+                    ))
+                  : displayedSections.map(({ section, isEnabled, restrictedTo }, index) => (
+                      <React.Fragment key={section}>
+                        <CollectiveSectionEntry
+                          intl={intl}
+                          section={section}
+                          index={index}
+                          isEnabled={isEnabled}
+                          collectiveType={collective.type}
+                          restrictedTo={restrictedTo}
+                          hasData={sectionsWithData.includes(section)}
+                          onMove={(dragIndex, hoverIndex) => {
+                            const newSections = getNewSections(sections, dragIndex, hoverIndex);
+                            if (!isEqual(tmpSections, newSections)) {
+                              setTmpSections(newSections);
+                            }
+                          }}
+                          onDrop={(dragIndex, hoverIndex) => {
+                            setTmpSections(null);
+                            setSections(getNewSections(sections, dragIndex, hoverIndex));
+                            setDirty(true);
+                          }}
+                          onSectionToggle={(selectedSection, isEnabled, restrictedTo) => {
+                            const sectionIdx = sections.findIndex(({ section }) => section === selectedSection);
+                            const newSections = cloneDeep(sections);
+                            set(newSections, `${sectionIdx}.isEnabled`, isEnabled);
+                            set(newSections, `${sectionIdx}.restrictedTo`, restrictedTo);
+                            setSections(newSections);
+                            setDirty(true);
+                          }}
+                        />
+                        {index !== displayedSections.length - 1 && <StyledHr borderColor="#DCDEE0" />}
+                      </React.Fragment>
+                    ))}
               </StyledCard>
               {error && (
                 <MessageBox type="error" fontSize="14px" withIcon my={2}>
